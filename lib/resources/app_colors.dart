@@ -5,7 +5,7 @@ class AppColors {
     Colors.blueGrey[900]!,
     Colors.blueGrey[800]!,
     Colors.blueGrey[600]!,
-    Colors.blueGrey[200]!,
+    Colors.blueGrey[400]!,
   ];
 
   static const Color grey = Colors.grey;

@@ -36,7 +36,7 @@ class _InfiniteDragableSliderState extends State<InfiniteDragableSlider>
     return {
           0: Offset(lerpDouble(0, -70, controller.value)!, 30),
           1: Offset(lerpDouble(-70, 70, controller.value)!, 30),
-          2: Offset(70, 30) * (1 - controller.value),
+          2: const Offset(70, 30) * (1 - controller.value),
         }[stackIndex] ??
         Offset(
             MediaQuery.of(context).size.width *

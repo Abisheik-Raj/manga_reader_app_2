@@ -134,6 +134,7 @@ class _DragableWidgetState extends State<DragableWidget>
     final child = SizedBox(key: _widgetKey, child: widget.child);
     if (!widget.isEnableDrag) return child;
     return GestureDetector(
+      onTap: () {},
       onPanStart: onPanStart,
       onPanUpdate: onPanUpdate,
       onPanEnd: onPanEnd,
