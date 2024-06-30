@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
-import "package:manga_reader_app_2/resources/app_colors.dart";
 import "package:manga_reader_app_2/resources/app_icons.dart";
+import "package:manga_reader_app_2/resources/constants.dart";
+import "package:manga_reader_app_2/screens/search_screen.dart";
 import "package:manga_reader_app_2/widgets/book_vertical.dart";
 import "package:manga_reader_app_2/widgets/infinite_dragable_slider.dart";
 import "package:manga_reader_app_2/widgets/recent_cover_image.dart";
@@ -14,9 +15,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+  late Animation<double> animationOpacity;
+
   @override
   void initState() {
     super.initState();
+
+    animationController = AnimationController(
+        vsync: this,
+        duration: const Duration(
+          seconds: 500,
+        ));
+    animationOpacity = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
+    );
+
+    animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -25,13 +47,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     return SafeArea(
       child: DecoratedBox(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0.1, 0.3, 0.6, 0.9],
-          colors: AppColors.scaffoldColors,
-        )),
+        decoration: scaffoldDecoration,
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: CustomScrollView(
@@ -45,108 +61,116 @@ class _HomeScreenState extends State<HomeScreen>
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
                 actions: [
-                  Icon(
-                    AppIcons.menu,
-                    color: Colors.white,
-                    size: 23,
-                  ),
                   SizedBox(
                     width: 15,
                   ),
                 ],
               ),
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                  child: TextField(
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      fillColor: Colors.white12,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Hero(
+                      tag: "search-field",
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 15),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: TextField(
+                            readOnly: true,
+                            onTap: () {
+                              Navigator.push(context, PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation, animation_) {
+                                return const SearchScreen();
+                              }));
+                            },
+                            cursorColor: Colors.white,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(10),
+                              fillColor: Colors.white12,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                borderSide: BorderSide.none,
+                              ),
+                              prefixIcon: Icon(
+                                AppIcons.search,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: Icon(
-                        AppIcons.search,
-                        color: Colors.white,
                       ),
                     ),
-                  ),
-                ),
-              ),
-              //RECENTS STARTS
-              const SliverToBoxAdapter(
-                child: Center(
-                  child: Text(
-                    "RECENTS",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: "PoppinsSemibold",
-                      fontSize: 12,
+                    const Hero(
+                      tag: "recent-tag",
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          "RECENTS",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "PoppinsSemibold",
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 50,
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Center(
-                  child: InfiniteDragableSlider(
-                    iteamCount: ImageCoverArt.fakeImageCoverArtsValues.length,
-                    itemBuilder: (context, index) => RecentCoverImage(
-                        height: screenSize.height * 0.34,
-                        imageUrl: ImageCoverArt
-                            .fakeImageCoverArtsValues[index].assetImage),
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenSize.height * 0.1,
-                ),
-              ),
-              // ALL BOOKS STARTS
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "ALL BOOKS",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: "PoppinsSemibold",
-                          fontSize: 12,
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Hero(
+                      tag: "body-tag",
+                      child: Center(
+                        child: InfiniteDragableSlider(
+                          iteamCount:
+                              ImageCoverArt.fakeImageCoverArtsValues.length,
+                          itemBuilder: (context, index) => RecentCoverImage(
+                              height: screenSize.height * 0.34,
+                              imageUrl: ImageCoverArt
+                                  .fakeImageCoverArtsValues[index].assetImage),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Scaffold()));
-                        },
-                        child: const Icon(
-                          AppIcons.rightArrow,
-                          color: Colors.white,
-                          size: 15,
-                        ),
+                    ),
+                    SizedBox(
+                      height: screenSize.height * 0.1,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "ALL BOOKS",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "PoppinsSemibold",
+                              fontSize: 13.5,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Scaffold()));
+                            },
+                            child: const Icon(
+                              AppIcons.rightArrow,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 20,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
                 ),
               ),
               SliverGrid(
